@@ -59,7 +59,11 @@ export function ProfileView({ apiKey, googleFailed, onShowGuide }: Props) {
       <div className="settings-card">
         <h2><MapPin size={19} /> Google Maps</h2>
         <p>{googleFailed ? "Google Maps could not load. Check your key, API settings, and website restriction." : usingSiteKey ? "Google Maps is enabled for this site." : apiKey ? "Google Maps is selected on this browser." : "Add a browser key to use Google Maps in the app."}</p>
-        <p>Enable Maps JavaScript API and billing in Google Cloud. Restrict the key to this website and the Maps JavaScript API.</p>
+        {(!apiKey || googleFailed) && <>
+          <p>For a prototype, sign in with a personal Google account to get a free demo key, then paste it below.</p>
+          <a className="text-link" href="https://console.cloud.google.com/google/maps-hosted/tos?ref=https%3A%2F%2Fdevelopers.google.com%2Fmaps%2F" target="_blank" rel="noopener noreferrer">Get a Google Maps demo key</a>
+        </>}
+        <p>For a standard key, enable Maps JavaScript API and billing in Google Cloud. Restrict the key to this API and website.</p>
         <code>{origin}/*</code>
         <form onSubmit={save} className="google-key-form">
           <label htmlFor="maps-key">{apiKey ? "Replace browser key" : "Google Maps browser key"}</label>

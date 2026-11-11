@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-const offlineData = ["bryant-park-restroom.jpg", "nyc-restrooms.json"];
+const offlineData = ["bryant-park-restroom.jpg", "favicon.png", "nyc-restrooms.json"];
 
 export default defineConfig({
   plugins: [

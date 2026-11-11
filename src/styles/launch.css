@@ -13,9 +13,7 @@
 .launch-description { max-width: 44ch; margin-top: 14px; color: #3e526b; font-size: 1rem; }
 .launch-action { width: max-content; display: inline-flex; align-items: center; gap: 12px; min-height: 46px; padding: 10px 18px; border-radius: 12px; color: #fff; background: #175ac4; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .launch-action:hover { background: #124a9f; }
-.launch-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-.launch-action-secondary { border: 1px solid #9eb9de; color: #174fa3; background: #fff; }
-.launch-action-secondary:hover { background: #e3efff; }
+.launch-intro .launch-action { margin-top: 24px; }
 .launch-photo { min-width: 0; margin: 0; }
 .launch-photo img { display: block; width: 100%; height: auto; border-radius: 18px; background: #d4e3f4; }
 .launch-photo figcaption { margin-top: 8px; color: #435975; font-size: .77rem; }
@@ -38,7 +36,6 @@
 .launch-need h3 { margin: 0 0 10px; font-size: 1.05rem; line-height: 1.22; }
 .launch-need p { margin-bottom: 10px; color: #3e526b; font-size: .94rem; }
 .launch-data { padding-block: 35px; background: #edf5ff; }
-.launch-data-layout { display: flex; justify-content: space-between; align-items: center; gap: 25px; }
 .launch-data p { max-width: 68ch; margin-top: 10px; color: #3e526b; }
 .map-loading { padding: 24px; }
 
@@ -48,6 +45,5 @@
   .launch-photo { max-width: 540px; }
   .launch-photo img { max-height: 330px; object-fit: cover; object-position: center; }
   .launch-needs { grid-template-columns: 1fr; gap: 14px; }
-  .launch-data-layout { align-items: flex-start; flex-direction: column; }
 }
 .launch-offline-status { margin-top: 12px; color: #3e526b; font-size: .85rem; }

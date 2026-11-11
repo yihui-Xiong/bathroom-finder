@@ -1,6 +1,6 @@
 # Bathroom Finder
 
-A responsive web app based on the [CS171 Bathroom Finder Figma project](https://www.figma.com/design/TdM16LxBGuI3lmmV0N2l4w/CS171---Bathroom-Finder). The launch page introduces the app and summarizes public restroom access research. Choose **Open map** to use the floating search and filter controls to find restrooms, tap map pins for details, and save places to Favorites.
+A responsive web app based on the [CS171 Bathroom Finder Figma project](https://www.figma.com/design/TdM16LxBGuI3lmmV0N2l4w/CS171---Bathroom-Finder). The launch page introduces the app and summarizes public restroom access research. Choose **Find near me** to use the floating search and filter controls to find restrooms, tap map pins for details, and save places to Favorites.
 
 ## Run locally
 
@@ -15,13 +15,13 @@ Open the local address printed by Vite. Run `npm run build` to generate the depl
 
 ## Google Maps
 
-In **Profile**, add a browser API key from a Google Cloud project with billing and the Maps JavaScript API enabled. Restrict the key to the Maps JavaScript API and the site origin shown in Profile, including the localhost origin for local use. Choose **Save and reload**. The setting stays in the current browser. OpenStreetMap is available by default and if Google Maps fails to load. Directions open in Google Maps from either map.
+In **Profile**, choose **Get a Google Maps demo key** to request a no-cost prototype key with a personal Google account, or add a standard browser key from a project with billing and the Maps JavaScript API enabled. Restrict the key to the Maps JavaScript API and the site origin shown in Profile, including the localhost origin for local use. Choose **Save and reload**. The setting stays in the current browser. OpenStreetMap is available by default and if Google Maps fails to load. Directions open in Google Maps from either map.
 
 [Google Maps API key setup](https://developers.google.com/maps/documentation/javascript/get-api-key)
 
 ## Restroom data
 
-**Find near me** on the launch page opens the map and asks for your location. If your browser already allows this site to use location, **Open map** also starts nearby. The NYC preview uses the [NYC Open Data restroom directory](https://data.cityofnewyork.us/d/i7jb-7jku) snapshot downloaded November 10, 2026. Use **Use my location** or pan and choose **Search this area** to look up nearby places through [REFUGE Restrooms](https://www.refugerestrooms.org/). The app sends the selected area's rounded coordinates to REFUGE for that lookup. Browser geolocation requires permission and HTTPS or localhost. REFUGE is a community directory with variable coverage. Hours and access can change.
+**Find near me** on the launch page opens the map and asks for your location. The NYC preview uses the [NYC Open Data restroom directory](https://data.cityofnewyork.us/d/i7jb-7jku) snapshot downloaded November 10, 2026. Use **Use my location** or pan and choose **Search this area** to look up nearby places through [REFUGE Restrooms](https://www.refugerestrooms.org/). The app sends the selected area's rounded coordinates to REFUGE for that lookup. Browser geolocation requires permission and HTTPS or localhost. REFUGE is a community directory with variable coverage. Hours and access can change.
 
 ### Enable Google Maps for every visitor
 

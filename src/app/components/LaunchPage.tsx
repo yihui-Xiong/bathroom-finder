@@ -48,10 +48,11 @@ export function LaunchPage({ online, offlineReady }: { online: boolean; offlineR
               <h1 id="launch-title">Bathroom Finder</h1>
               <p className="launch-lead">Find nearby restrooms and check whether they meet your needs before you go.</p>
               <p className="launch-description">Search the map, filter for wheelchair-accessible or gender-neutral restrooms, and get directions. Use your location or browse a different area.</p>
-              <div className="launch-actions">
-                {online && <a className="launch-action" href="#nearby"><LocateFixed size={19} aria-hidden="true" /> Find near me</a>}
-                <a className={`launch-action${online ? " launch-action-secondary" : ""}`} href="#map">{online ? "Open map" : "Open saved map"} <ArrowRight size={19} aria-hidden="true" /></a>
-              </div>
+              {online ? (
+                <a className="launch-action" href="#nearby"><LocateFixed size={19} aria-hidden="true" /> Find near me</a>
+              ) : (
+                <a className="launch-action" href="#map">Open saved map <ArrowRight size={19} aria-hidden="true" /></a>
+              )}
               {(!online || offlineReady) && <p className="launch-offline-status" role="status">
                 {online ? "Available offline after this visit" : "Offline. Open the map to view saved results and favorites."}
               </p>}
@@ -89,13 +90,12 @@ export function LaunchPage({ online, offlineReady }: { online: boolean; offlineR
         </section>
 
         <section className="launch-data" aria-labelledby="data-title">
-          <div className="launch-width launch-data-layout">
+          <div className="launch-width">
             <div>
               <h2 id="data-title">Where the listings come from</h2>
               <p>The starting map uses NYC’s public restroom directory. Location and area searches use REFUGE Restrooms, a community directory with coverage that varies by area. Hours, access rules, and facilities can change.</p>
               <p className="launch-source"><a href="https://data.cityofnewyork.us/d/i7jb-7jku">NYC Open Data</a> <a href="https://www.refugerestrooms.org/">REFUGE Restrooms</a></p>
             </div>
-            <a className="launch-action" href="#map">Open map <ArrowRight size={19} aria-hidden="true" /></a>
           </div>
         </section>
       </main>
