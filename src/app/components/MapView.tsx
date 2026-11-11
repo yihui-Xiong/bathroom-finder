@@ -20,10 +20,16 @@ const tabs = [
   { id: "profile", label: "Profile", icon: User },
 ] as const;
 
-export function MapView({ locateOnOpen, online }: { locateOnOpen: boolean; online: boolean }) {
+interface Props {
+  initialTab: "map" | "profile";
+  locateOnOpen: boolean;
+  online: boolean;
+}
+
+export function MapView({ initialTab, locateOnOpen, online }: Props) {
   const { favorites, toggleBookmark } = useBookmarks();
-  const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("map");
-  const [showGuide, setShowGuide] = useState(true);
+  const [tab, setTab] = useState<(typeof tabs)[number]["id"]>(initialTab);
+  const [showGuide, setShowGuide] = useState(initialTab === "map");
   const [entered, setEntered] = useState(false);
   const mapTab = useRef<HTMLButtonElement>(null);
   const [apiKey] = useState(readGoogleKey);
@@ -291,10 +297,13 @@ export function MapView({ locateOnOpen, online }: { locateOnOpen: boolean; onlin
             <p className="empty-state">Use the bookmark button to save a restroom.</p>}
         </div>
       </section>}
-      {tab === "profile" && <ProfileView apiKey={apiKey} googleFailed={googleFailed} onShowGuide={openGuide} />}
+      {tab === "profile" && <ProfileView apiKey={apiKey} googleFailed={googleFailed} online={online} onShowGuide={openGuide} />}
 
       <nav className="bottom-nav" aria-label="Bathroom Finder views">
-        {tabs.map(({ id, label, icon: Icon }) => <button key={id} ref={id === "map" ? mapTab : undefined} type="button" aria-pressed={tab === id} onClick={() => setTab(id)}>
+        {tabs.map(({ id, label, icon: Icon }) => <button key={id} ref={id === "map" ? mapTab : undefined} type="button" aria-pressed={tab === id} onClick={() => {
+          if (id === "map" && !entered) openGuide();
+          else setTab(id);
+        }}>
           <Icon size={23} /><span>{label}</span>
         </button>)}
       </nav>

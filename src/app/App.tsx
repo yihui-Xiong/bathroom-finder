@@ -36,7 +36,7 @@ export default function App() {
     return () => serviceWorker.removeEventListener("controllerchange", markReady);
   }, []);
 
-  const showMap = hash === "#map" || hash === "#nearby";
+  const showMap = hash === "#map" || hash === "#nearby" || hash === "#profile";
 
   useEffect(() => {
     if (showMap) window.scrollTo(0, 0);
@@ -48,7 +48,7 @@ export default function App() {
   return (
     <BookmarkProvider>
       <Suspense fallback={<p className="map-loading" role="status">Loading the map…</p>}>
-        <MapView key={hash} locateOnOpen={hash === "#nearby"} online={online} />
+        <MapView key={hash} initialTab={hash === "#profile" ? "profile" : "map"} locateOnOpen={hash === "#nearby"} online={online} />
       </Suspense>
     </BookmarkProvider>
   );

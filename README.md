@@ -15,7 +15,7 @@ Open the local address printed by Vite. Run `npm run build` to generate the depl
 
 ## Google Maps
 
-In **Profile**, choose **Get a Google Maps demo key** to request a no-cost prototype key with a personal Google account, or add a standard browser key from a project with billing and the Maps JavaScript API enabled. Restrict the key to the Maps JavaScript API and the site origin shown in Profile, including the localhost origin for local use. Choose **Save and reload**. The setting stays in the current browser. OpenStreetMap is available by default and if Google Maps fails to load. Directions open in Google Maps from either map.
+In **Profile → Map settings**, choose **Get a Google Maps demo key** to request a no-cost prototype key with a personal Google account, or add a standard browser key from a project with billing and the Maps JavaScript API enabled. Restrict the key to the Maps JavaScript API and the site origin shown in Profile, including the localhost origin for local use. Choose **Save map key**. The setting stays in the current browser. OpenStreetMap is available by default and if Google Maps fails to load. Directions open in Google Maps from either map.
 
 [Google Maps API key setup](https://developers.google.com/maps/documentation/javascript/get-api-key)
 

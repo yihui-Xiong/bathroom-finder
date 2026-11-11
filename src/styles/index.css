@@ -99,12 +99,46 @@ p, h1, h2 { margin: 0; }
 .secondary-screen { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; background: #f9fafb; }
 .screen-heading { display: flex; align-items: center; gap: 10px; padding: 17px 16px; margin-bottom: 12px; border-bottom: 1px solid var(--line); background: white; }
 .screen-heading h1 { font-size: 1.23rem; }
-.settings-card { display: grid; gap: 11px; margin: 4px 16px 16px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: white; font-size: .9rem; }
-.settings-card h2 { display: flex; align-items: center; gap: 7px; font-size: 1.06rem; }
-.settings-card code { width: fit-content; max-width: 100%; overflow-wrap: anywhere; background: #eff4fb; padding: 4px 6px; border-radius: 5px; }
-.settings-card .text-link { justify-self: start; }
+.profile-content { width: min(560px, 100%); margin-inline: auto; padding: 30px 16px 24px; }
+.profile-header { margin-bottom: 24px; text-align: center; }
+.profile-avatar {
+  display: grid; place-items: center; width: 78px; height: 78px; margin: 0 auto 12px;
+  border: 3px solid white; border-radius: 50%; color: white;
+  background: linear-gradient(145deg, #418aff, #175ac4); box-shadow: 0 6px 18px #1855b72e;
+}
+.profile-header h1 { font-size: 1.5rem; letter-spacing: -.025em; }
+.profile-header p { margin-top: 4px; color: var(--muted); font-size: .87rem; }
+.profile-settings {
+  border: 1px solid var(--line); border-radius: 15px; background: white;
+  box-shadow: 0 2px 7px #1a2c4110;
+}
+.profile-settings > * + * { border-top: 1px solid var(--line); }
+.profile-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px;
+  color: inherit; background: transparent; text-align: left; text-decoration: none; cursor: pointer;
+}
+button.profile-row { border: 0; }
+.profile-row:hover { background: #f5f9ff; }
+.profile-settings > :first-child { border-radius: 14px 14px 0 0; }
+.profile-settings > :last-child { border-radius: 0 0 14px 14px; }
+.profile-row-icon {
+  display: grid; place-items: center; flex: 0 0 42px; height: 42px; border-radius: 50%;
+  background: #eaf2ff; color: var(--blue);
+}
+.profile-row-text { display: grid; gap: 2px; flex: 1; }
+.profile-row-text strong { font-size: .94rem; }
+.profile-row-text small { color: var(--muted); font-size: .8rem; }
+.profile-chevron { flex: none; color: var(--muted); }
+.profile-maps summary { list-style: none; }
+.profile-maps summary::-webkit-details-marker { display: none; }
+.profile-maps[open] .profile-chevron { rotate: 90deg; }
+.profile-map-options { display: grid; gap: 10px; padding: 0 16px 16px; font-size: .88rem; }
+.profile-map-options h2 { font-size: 1rem; }
+.profile-map-options code { overflow-wrap: anywhere; }
+.profile-map-options > .text-link { justify-self: start; }
 .google-key-form { display: grid; gap: 6px; }
-.google-key-form input { padding: 7px; min-width: 0; border: 1px solid #a8b2c2; border-radius: 8px; }
+.google-key-form input { width: 100%; min-width: 0; padding: 9px; border: 1px solid #a8b2c2; border-radius: 8px; }
+.profile-error { color: #ad2727; }
 .detail-dialog {
   width: min(448px, 100%); max-width: 100%; max-height: 88dvh; margin: auto auto 0; padding: 18px;
   border: 0; border-radius: 23px 23px 0 0; color: inherit; box-shadow: 0 20px 70px #101f4740;
@@ -140,12 +174,6 @@ p, h1, h2 { margin: 0; }
   .search-row { gap: 6px; }
   .map-toolbar .icon-button { width: 42px; height: 42px; }
 }
-
-.guide-link {
-  display: flex; align-items: center; gap: 10px; text-align: left; font-weight: 650;
-}
-.guide-link > svg { color: var(--blue); flex: none; }
-.guide-link > svg:last-child { margin-left: auto; }
 
 .onboarding {
   position: fixed; inset: 0; width: min(448px, 100%); max-width: 100%;
@@ -217,8 +245,7 @@ p, h1, h2 { margin: 0; }
   .favorites-screen .bathroom-card { margin: 0; }
   .favorites-screen .empty-state { grid-column: 1 / -1; }
   .favorites-screen .screen-heading { padding-inline: max(24px, calc((100% - 1040px) / 2)); }
-  .profile-screen .screen-heading { padding-inline: max(24px, calc((100% - 560px) / 2)); }
-  .profile-screen .settings-card { width: min(560px, calc(100% - 48px)); margin-inline: auto; }
+  .profile-content { padding-block: 42px 24px; }
 
   .detail-dialog {
     width: min(500px, calc(100% - 48px)); margin: auto; padding: 22px;
