@@ -1,0 +1,21 @@
+{
+  "name": "bathroom-finder",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "leaflet": "1.9.4",
+    "lucide-react": "0.487.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/google.maps": "3.58.1",
+    "@vitejs/plugin-react": "4.7.0",
+    "vite": "6.3.5"
+  }
+}
