@@ -23,6 +23,16 @@ In **Profile**, add a browser API key from a Google Cloud project with billing a
 
 **Find near me** on the launch page opens the map and asks for your location. If your browser already allows this site to use location, **Open map** also starts nearby. The NYC preview uses the [NYC Open Data restroom directory](https://data.cityofnewyork.us/d/i7jb-7jku) snapshot downloaded November 10, 2026. Use **Use my location** or pan and choose **Search this area** to look up nearby places through [REFUGE Restrooms](https://www.refugerestrooms.org/). The app sends the selected area's rounded coordinates to REFUGE for that lookup. Browser geolocation requires permission and HTTPS or localhost. REFUGE is a community directory with variable coverage. Hours and access can change.
 
+### Enable Google Maps for every visitor
+
+For a shared deployment, put `VITE_GOOGLE_MAPS_BROWSER_KEY` in your local `.env.local` or set it in your build environment, then rebuild and deploy. Use a browser key restricted to your site's origin and the Maps JavaScript API, since the build serves it to browsers. Your Google Cloud project needs billing and the Maps JavaScript API enabled. An individual key entered in **Profile** can override the site key.
+
+## Use offline
+
+Open the published site once while online and wait for **Available offline after this visit** on the launch page. Search an area online to save its restroom listings automatically. When offline, open the map to see the latest saved area, the bundled NYC directory when no area has been saved, and your favorites. Saved search areas use rounded coordinates and stay in this browser. Street map tiles, new listings, and online directions require a connection.
+
+For a local offline test, run `npm run build` followed by `npx vite preview`. The offline cache is installed by the production build.
+
 ## GitHub Pages
 
 The public demo uses the `gh-pages` branch. To update it, build from `main` with `npm ci` and `npm run build -- --base=./`, then update `gh-pages` with the contents of `dist/`. Keep `.nojekyll` at the root of the publishing branch.

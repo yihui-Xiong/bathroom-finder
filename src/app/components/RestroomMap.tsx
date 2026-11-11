@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { cityCenter } from "../data/bathrooms";
 import type { MapProps } from "./mapTypes";
 
-export function RestroomMap({ bathrooms, center, zoom, location, onSelect, onViewportChange }: MapProps) {
+export function RestroomMap({ bathrooms, center, zoom, location, onSelect, onViewportChange, online }: MapProps & { online: boolean }) {
   const container = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [tileError, setTileError] = useState(false);
@@ -17,12 +17,6 @@ export function RestroomMap({ bathrooms, center, zoom, location, onSelect, onVie
     }).setView(cityCenter, 14);
     instance.on("moveend", () => onViewportChange(instance.wrapLatLng(instance.getCenter())));
     L.control.zoom({ position: "bottomright" }).addTo(instance);
-    const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(instance);
-    tiles.on("tileerror", () => setTileError(true));
-    tiles.on("tileload", () => setTileError(false));
     setMap(instance);
     const observer = new ResizeObserver(() => instance.invalidateSize({ pan: false }));
     observer.observe(container.current);
@@ -31,6 +25,18 @@ export function RestroomMap({ bathrooms, center, zoom, location, onSelect, onVie
       instance.remove();
     };
   }, [onViewportChange]);
+
+  useEffect(() => {
+    if (!map || !online) return;
+    setTileError(false);
+    const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+    tiles.on("tileerror", () => setTileError(true));
+    tiles.on("tileload", () => setTileError(false));
+    return () => { tiles.remove(); };
+  }, [map, online]);
 
   useEffect(() => {
     if (map) {
@@ -57,8 +63,9 @@ export function RestroomMap({ bathrooms, center, zoom, location, onSelect, onVie
 
   return (
     <div className="map-pane">
-      <div ref={container} className="map-canvas" aria-label="Map of public restrooms" />
-      {tileError && <p className="map-notice" role="status">Map tiles are unavailable. You can still use the results list.</p>}
+      <div ref={container} className={`map-canvas${online ? "" : " map-canvas-offline"}`} aria-label={online ? "Map of public restrooms" : "Offline restroom pins"} />
+      {!online && <p className="map-notice" role="status">Offline. Street maps and online directions need a connection.</p>}
+      {online && tileError && <p className="map-notice" role="status">Map tiles are unavailable. You can still use the results list.</p>}
     </div>
   );
 }

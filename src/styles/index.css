@@ -233,3 +233,8 @@ p, h1, h2 { margin: 0; }
   .onboarding-top { width: min(calc(100% - 48px), calc(var(--toolbar-width) - 48px)); }
   .onboarding-bottom { grid-column: 1 / -1; justify-self: center; width: min(400px, calc(100% - 48px)); }
 }
+.map-canvas-offline {
+  background-color: #eaf2f8;
+  background-image: linear-gradient(#d5e1ed 1px, transparent 1px), linear-gradient(90deg, #d5e1ed 1px, transparent 1px);
+  background-size: 40px 40px;
+}

@@ -1,16 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ArrowDown, ArrowRight, ArrowUp } from "lucide-react";
 
-export const guideStorageKey = "bathroom-finder:guide-seen";
-
-export function shouldShowGuide() {
-  try {
-    return localStorage.getItem(guideStorageKey) !== "true";
-  } catch {
-    return true;
-  }
-}
-
 export function OnboardingOverlay({ onComplete }: { onComplete: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
 

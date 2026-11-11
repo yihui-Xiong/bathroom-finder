@@ -9,6 +9,11 @@ type GoogleWindow = Window & {
 
 function requestGoogleMaps(apiKey: string, onReady: () => void, onFailure: () => void) {
   const browser = window as GoogleWindow;
+  if (typeof google !== "undefined" && typeof google.maps?.Map === "function") {
+    browser.gm_authFailure = onFailure;
+    onReady();
+    return () => { delete browser.gm_authFailure; };
+  }
   const script = document.createElement("script");
   const url = new URL("https://maps.googleapis.com/maps/api/js");
   url.search = new URLSearchParams({

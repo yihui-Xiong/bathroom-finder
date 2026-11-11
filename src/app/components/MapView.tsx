@@ -4,9 +4,10 @@ import { BathroomCard } from "./BathroomCard";
 import { BathroomDetail } from "./BathroomDetail";
 import { FilterPanel, emptyFilters, travelModes } from "./FilterPanel";
 import { GoogleRestroomMap } from "./GoogleRestroomMap";
-import { guideStorageKey, OnboardingOverlay, shouldShowGuide } from "./OnboardingOverlay";
+import { OnboardingOverlay } from "./OnboardingOverlay";
 import { ProfileView, readGoogleKey } from "./ProfileView";
 import { RestroomMap } from "./RestroomMap";
+import { findSavedArea, latestSavedArea, saveArea } from "../data/savedAreas";
 import { favoriteId, useBookmarks } from "../context/BookmarkContext";
 import {
   cityCenter, citySource, nearbySource, distanceMiles, isAccessible, isAllGender, loadBathrooms, loadNearbyBathrooms,
@@ -19,10 +20,11 @@ const tabs = [
   { id: "profile", label: "Profile", icon: User },
 ] as const;
 
-export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
+export function MapView({ locateOnOpen, online }: { locateOnOpen: boolean; online: boolean }) {
   const { favorites, toggleBookmark } = useBookmarks();
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("map");
-  const [showGuide, setShowGuide] = useState(shouldShowGuide);
+  const [showGuide, setShowGuide] = useState(true);
+  const [entered, setEntered] = useState(false);
   const mapTab = useRef<HTMLButtonElement>(null);
   const [apiKey] = useState(readGoogleKey);
   const [googleFailed, setGoogleFailed] = useState(false);
@@ -32,9 +34,11 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   const [cityError, setCityError] = useState(false);
   const [areaBathrooms, setAreaBathrooms] = useState<Bathroom[] | null>(null);
   const [areaError, setAreaError] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [lastSavedArea, setLastSavedArea] = useState(latestSavedArea);
   const [request, setRequest] = useState(0);
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [area, setArea] = useState<Coordinates | null>(null);
+  const [area, setArea] = useState<Coordinates | null>(() => online ? null : lastSavedArea?.center ?? null);
   const [viewport, setViewport] = useState<Coordinates>(cityCenter);
   const [locating, setLocating] = useState(false);
   const locationRequest = useRef<AbortController | null>(null);
@@ -44,7 +48,7 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState(emptyFilters);
   const [showFilters, setShowFilters] = useState(false);
-  const [sheet, setSheet] = useState<"collapsed" | "half" | "full">("collapsed");
+  const [sheet, setSheet] = useState<"collapsed" | "half" | "full">(online ? "collapsed" : "half");
   const [selected, setSelected] = useState<Bathroom | null>(null);
 
   const origin = area ?? cityCenter;
@@ -52,6 +56,7 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   const areaLabel = isNearDevice ? "Near your location" : area ? "Near the selected area" : "Near Bryant Park, Manhattan";
   const bathrooms = area ? areaBathrooms : cityBathrooms;
   const loadError = area ? areaError : cityError;
+  const showLastSaved = !online && lastSavedArea && distanceMiles(lastSavedArea.center, origin) > 0.75;
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
   const travelIndex = travelModes.findIndex((mode) => mode.radius === radius);
   const travelMode = travelModes[travelIndex];
@@ -66,21 +71,38 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
 
   useEffect(() => {
     if (!area) return;
+    const cached = findSavedArea(area);
+    setAreaError(false);
+    if (cached) {
+      setAreaBathrooms(cached.bathrooms);
+      setSavedAt(cached.savedAt);
+    }
+    if (!online) {
+      if (!cached) setAreaError(true);
+      return;
+    }
+
     const controller = new AbortController();
+    const fail = () => {
+      if (!cached) setAreaError(true);
+    };
     const timeout = window.setTimeout(() => {
-      setAreaError(true);
+      fail();
       controller.abort();
-    }, 22000);
+    }, 15000);
     loadNearbyBathrooms(area, controller.signal).then((restrooms) => {
-      if (!controller.signal.aborted) setAreaBathrooms(restrooms);
+      if (controller.signal.aborted) return;
+      setAreaBathrooms(restrooms);
+      setSavedAt(null);
+      if (restrooms.length) setLastSavedArea(saveArea(area, restrooms));
     }).catch(() => {
-      if (!controller.signal.aborted) setAreaError(true);
+      if (!controller.signal.aborted) fail();
     }).finally(() => window.clearTimeout(timeout));
     return () => {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [area, request]);
+  }, [area, online, request]);
 
   const results = useMemo(() => {
     if (!bathrooms) return [];
@@ -122,6 +144,7 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
 
   const searchArea = useCallback((position: Coordinates) => {
     setAreaBathrooms(null);
+    setSavedAt(null);
     setAreaError(false);
     setArea({ lat: position.lat, lng: position.lng });
     setLocationMessage("");
@@ -157,10 +180,11 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   }, [searchArea]);
 
   useEffect(() => {
+    if (!entered) return;
     let active = true;
     if (locateOnOpen) {
       locate();
-    } else {
+    } else if (navigator.onLine) {
       navigator.permissions?.query({ name: "geolocation" }).then(({ state }) => {
         if (active && state === "granted") locate();
       }).catch(() => {
@@ -172,7 +196,7 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
       locationRequest.current?.abort();
       locationRequest.current = null;
     };
-  }, [locate, locateOnOpen]);
+  }, [entered, locate, locateOnOpen]);
 
   function openGuide() {
     setTab("map");
@@ -181,12 +205,8 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   }
 
   function completeGuide() {
-    try {
-      localStorage.setItem(guideStorageKey, "true");
-    } catch {
-      // The guide can still be dismissed for this visit.
-    }
     setShowGuide(false);
+    setEntered(true);
     mapTab.current?.focus({ preventScroll: true });
   }
 
@@ -205,7 +225,7 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
     <main className="finder" aria-label="Bathroom Finder">
       <section className="map-screen" hidden={tab !== "map"} aria-label="Find bathrooms">
         <div className="map-stage">
-          {apiKey && !googleFailed ? <GoogleRestroomMap {...mapProps} apiKey={apiKey} onFailure={failGoogle} /> : <RestroomMap {...mapProps} />}
+          {online && apiKey && !googleFailed ? <GoogleRestroomMap {...mapProps} apiKey={apiKey} onFailure={failGoogle} /> : <RestroomMap {...mapProps} online={online} />}
           <div className="map-toolbar">
             <div className="search-row">
               <form className="search-form" onSubmit={search} role="search">
@@ -220,10 +240,11 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
             </div>
             {locationMessage && <p className="location-message" role="status">{locationMessage}</p>}
             {locating && <p className="location-message" role="status">Getting your location…</p>}
-            {googleFailed && <p className="location-message" role="status">Google Maps is unavailable. Check your key in Profile.</p>}
+            {online && googleFailed && <p className="location-message" role="status">Google Maps is unavailable. Check your key in Profile.</p>}
             {!query && !locating && <span className="map-pill radius-pill">{isNearDevice ? "Your location" : area ? "Selected area" : "NYC preview"} · {radius} mi</span>}
-            {distanceMiles(viewport, origin) > Math.min(0.2, radius / 2) &&
+            {online && distanceMiles(viewport, origin) > Math.min(0.2, radius / 2) &&
               <button type="button" className="map-pill area-pill" onClick={() => searchArea(viewport)}>Search this area</button>}
+            {showLastSaved && <button type="button" className="map-pill area-pill" onClick={() => searchArea(lastSavedArea.center)}>Open last saved area</button>}
           </div>
           {sheet === "collapsed" && <button type="button" className="map-pill results-toggle" onClick={() => setSheet("half")}>
             <span aria-live="polite">{resultLabel}</span><ChevronUp size={19} />
@@ -233,19 +254,26 @@ export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
         <section className={`results-sheet results-sheet--${sheet}`} aria-label="Restroom results">
           <button type="button" className="sheet-handle" aria-label={sheet === "collapsed" ? "Show results" : "Collapse results"} onClick={() => setSheet(sheet === "collapsed" ? "half" : "collapsed")}><span /></button>
           <div className="sheet-heading">
-            <div><h1 aria-live="polite">{resultLabel}</h1><p className="results-context">{query ? `Matches for “${query}”` : areaLabel}</p></div>
+            <div><h1 aria-live="polite">{resultLabel}</h1><p className="results-context">{query ? `Matches for “${query}”` : areaLabel}</p>
+              {savedAt && <p className="results-context">Saved {new Date(savedAt).toLocaleDateString()}</p>}
+            </div>
             <button className="icon-button" type="button" aria-label={sheet === "full" ? "Show less" : "Expand results"} onClick={() => setSheet(sheet === "full" ? "half" : "full")}>
               {sheet === "full" ? <ChevronDown size={22} /> : <ChevronUp size={22} />}
             </button>
           </div>
           <div className="results-list">
             {loadError ? <div className="empty-state" role="alert">
-              <p>Couldn’t load restroom listings.</p>
-              <button type="button" className="text-link" onClick={() => {
+              <p>{online ? "Couldn’t load restroom listings." : "No saved listings for this area. Reconnect to search."}</p>
+              {online && <button type="button" className="text-link" onClick={() => {
                 if (!area) { window.location.reload(); return; }
                 setAreaError(false);
                 setRequest((value) => value + 1);
-              }}>Try again</button>
+              }}>Try again</button>}
+              {!online && area && <button type="button" className="text-link" onClick={() => {
+                setArea(null);
+                setSavedAt(null);
+                clearSearch();
+              }}>Browse NYC directory</button>}
             </div> : !bathrooms ? null : results.length ? results.map(({ bathroom, distance }) => restroomCard(bathroom, distance)) :
               <p className="empty-state">{query ? "No facilities match this search." : "No restrooms found. Try a larger radius or adjust your filters."}</p>}
           </div>

@@ -1,14 +1,19 @@
 import { useState, type FormEvent } from "react";
 import { ChevronRight, Info, MapPin, User } from "lucide-react";
 
-export const googleKeyStorage = "bathroom-finder:google-maps-key";
+const deploymentGoogleKey = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY?.trim() ?? "";
+const googleKeyStorage = "bathroom-finder:google-maps-key";
 
-export function readGoogleKey() {
+function savedGoogleKey() {
   try {
     return localStorage.getItem(googleKeyStorage) ?? "";
   } catch {
     return "";
   }
+}
+
+export function readGoogleKey() {
+  return savedGoogleKey() || deploymentGoogleKey;
 }
 
 interface Props {
@@ -21,6 +26,7 @@ export function ProfileView({ apiKey, googleFailed, onShowGuide }: Props) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const origin = window.location.origin;
+  const usingSiteKey = Boolean(deploymentGoogleKey && !savedGoogleKey());
 
   function updateKey(key: string) {
     try {
@@ -52,7 +58,7 @@ export function ProfileView({ apiKey, googleFailed, onShowGuide }: Props) {
       </button>
       <div className="settings-card">
         <h2><MapPin size={19} /> Google Maps</h2>
-        <p>{googleFailed ? "Google Maps could not load. Check your key, API settings, and website restriction." : apiKey ? "Google Maps is selected on this browser." : "Add a browser key to use Google Maps in the app."}</p>
+        <p>{googleFailed ? "Google Maps could not load. Check your key, API settings, and website restriction." : usingSiteKey ? "Google Maps is enabled for this site." : apiKey ? "Google Maps is selected on this browser." : "Add a browser key to use Google Maps in the app."}</p>
         <p>Enable Maps JavaScript API and billing in Google Cloud. Restrict the key to this website and the Maps JavaScript API.</p>
         <code>{origin}/*</code>
         <form onSubmit={save} className="google-key-form">
@@ -60,7 +66,7 @@ export function ProfileView({ apiKey, googleFailed, onShowGuide }: Props) {
           <input id="maps-key" type="password" autoComplete="off" value={draft} onChange={(event) => { setDraft(event.target.value); setError(""); }} required />
           <button className="primary-button" type="submit">Save and reload</button>
         </form>
-        {apiKey && <button type="button" className="text-link" onClick={() => updateKey("")}>Remove saved key</button>}
+        {savedGoogleKey() && <button type="button" className="text-link" onClick={() => updateKey("")}>{deploymentGoogleKey ? "Use the site key" : "Remove saved key"}</button>}
         {error && <p role="alert">{error}</p>}
         <p className="card-meta">The key is stored in this browser and sent to Google when the map loads.</p>
         <a className="text-link" href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank" rel="noreferrer">Google Maps key setup</a>

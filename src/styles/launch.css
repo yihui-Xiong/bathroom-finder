@@ -50,3 +50,4 @@
   .launch-needs { grid-template-columns: 1fr; gap: 14px; }
   .launch-data-layout { align-items: flex-start; flex-direction: column; }
 }
+.launch-offline-status { margin-top: 12px; color: #3e526b; font-size: .85rem; }

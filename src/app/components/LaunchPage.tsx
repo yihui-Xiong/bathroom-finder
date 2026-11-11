@@ -31,7 +31,7 @@ const needs = [
   },
 ];
 
-export function LaunchPage() {
+export function LaunchPage({ online, offlineReady }: { online: boolean; offlineReady: boolean }) {
   return (
     <div className="launch-page" id="about">
       <header className="launch-header">
@@ -49,9 +49,12 @@ export function LaunchPage() {
               <p className="launch-lead">Find nearby restrooms and check whether they meet your needs before you go.</p>
               <p className="launch-description">Search the map, filter for wheelchair-accessible or gender-neutral restrooms, and get directions. Use your location or browse a different area.</p>
               <div className="launch-actions">
-                <a className="launch-action" href="#nearby"><LocateFixed size={19} aria-hidden="true" /> Find near me</a>
-                <a className="launch-action launch-action-secondary" href="#map">Open map <ArrowRight size={19} aria-hidden="true" /></a>
+                {online && <a className="launch-action" href="#nearby"><LocateFixed size={19} aria-hidden="true" /> Find near me</a>}
+                <a className={`launch-action${online ? " launch-action-secondary" : ""}`} href="#map">{online ? "Open map" : "Open saved map"} <ArrowRight size={19} aria-hidden="true" /></a>
               </div>
+              {(!online || offlineReady) && <p className="launch-offline-status" role="status">
+                {online ? "Available offline after this visit" : "Offline. Open the map to view saved results and favorites."}
+              </p>}
             </div>
             <figure className="launch-photo">
               <img src={import.meta.env.BASE_URL + "bryant-park-restroom.jpg"} width={1280} height={960} alt="Street entrance to the Bryant Park public restroom in Manhattan" />
