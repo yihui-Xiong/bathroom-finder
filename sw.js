@@ -1,7 +1,7 @@
 const scope = self.registration.scope;
 const cachePrefix = `bathroom-finder-shell:${scope}:`;
-const cacheName = cachePrefix + "3e74e695065395c2c2a1";
-const shell = new Set(["assets/MapView-CIGW-MKW.css","assets/MapView-DiAU8i8K.js","assets/index-BU6luEZq.css","assets/index-D-lZ7HYc.js","bryant-park-restroom.jpg","index.html","nyc-restrooms.json"].map((path) => new URL(path, scope).href));
+const cacheName = cachePrefix + "d6866e3bb4388ec859d7";
+const shell = new Set(["assets/MapView-B06VwN3t.js","assets/MapView-CIGW-MKW.css","assets/index-Cy1fakmy.js","assets/index-RGGNwZvJ.css","bryant-park-restroom.jpg","favicon.png","index.html","nyc-restrooms.json"].map((path) => new URL(path, scope).href));
 const index = new URL("index.html", scope).href;
 
 self.addEventListener("install", (event) => {
