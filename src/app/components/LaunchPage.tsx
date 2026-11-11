@@ -1,4 +1,4 @@
-import { Accessibility, ArrowRight, Clock3, MapPin, Users } from "lucide-react";
+import { Accessibility, ArrowRight, Clock3, LocateFixed, MapPin, Users } from "lucide-react";
 import "../../styles/launch.css";
 
 const photoSource = "https://commons.wikimedia.org/wiki/File:Bryant_Park_Restroom_2023_front.jpg";
@@ -48,7 +48,10 @@ export function LaunchPage() {
               <h1 id="launch-title">Bathroom Finder</h1>
               <p className="launch-lead">Find nearby restrooms and check whether they meet your needs before you go.</p>
               <p className="launch-description">Search the map, filter for wheelchair-accessible or gender-neutral restrooms, and get directions. Use your location or browse a different area.</p>
-              <a className="launch-action" href="#map">Open map <ArrowRight size={19} aria-hidden="true" /></a>
+              <div className="launch-actions">
+                <a className="launch-action" href="#nearby"><LocateFixed size={19} aria-hidden="true" /> Find near me</a>
+                <a className="launch-action launch-action-secondary" href="#map">Open map <ArrowRight size={19} aria-hidden="true" /></a>
+              </div>
             </div>
             <figure className="launch-photo">
               <img src={import.meta.env.BASE_URL + "bryant-park-restroom.jpg"} width={1280} height={960} alt="Street entrance to the Bryant Park public restroom in Manhattan" />

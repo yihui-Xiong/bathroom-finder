@@ -13,7 +13,9 @@
 .launch-description { max-width: 44ch; margin-top: 14px; color: #3e526b; font-size: 1rem; }
 .launch-action { width: max-content; display: inline-flex; align-items: center; gap: 12px; min-height: 46px; padding: 10px 18px; border-radius: 12px; color: #fff; background: #175ac4; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .launch-action:hover { background: #124a9f; }
-.launch-intro .launch-action { margin-top: 24px; }
+.launch-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.launch-action-secondary { border: 1px solid #9eb9de; color: #174fa3; background: #fff; }
+.launch-action-secondary:hover { background: #e3efff; }
 .launch-photo { min-width: 0; margin: 0; }
 .launch-photo img { display: block; width: 100%; height: auto; border-radius: 18px; background: #d4e3f4; }
 .launch-photo figcaption { margin-top: 8px; color: #435975; font-size: .77rem; }

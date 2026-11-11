@@ -13,17 +13,19 @@ export default function App() {
     return () => window.removeEventListener("hashchange", update);
   }, []);
 
-  useEffect(() => {
-    if (hash === "#map") window.scrollTo(0, 0);
-    if (hash === "#about" || hash === "#research") document.getElementById(hash.slice(1))?.scrollIntoView();
-  }, [hash]);
+  const showMap = hash === "#map" || hash === "#nearby";
 
-  if (hash !== "#map") return <LaunchPage />;
+  useEffect(() => {
+    if (showMap) window.scrollTo(0, 0);
+    if (hash === "#about" || hash === "#research") document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash, showMap]);
+
+  if (!showMap) return <LaunchPage />;
 
   return (
     <BookmarkProvider>
       <Suspense fallback={<p className="map-loading" role="status">Loading the map…</p>}>
-        <MapView />
+        <MapView key={hash} locateOnOpen={hash === "#nearby"} />
       </Suspense>
     </BookmarkProvider>
   );

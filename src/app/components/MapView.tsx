@@ -19,7 +19,7 @@ const tabs = [
   { id: "profile", label: "Profile", icon: User },
 ] as const;
 
-export function MapView() {
+export function MapView({ locateOnOpen }: { locateOnOpen: boolean }) {
   const { favorites, toggleBookmark } = useBookmarks();
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("map");
   const [showGuide, setShowGuide] = useState(shouldShowGuide);
@@ -37,6 +37,7 @@ export function MapView() {
   const [area, setArea] = useState<Coordinates | null>(null);
   const [viewport, setViewport] = useState<Coordinates>(cityCenter);
   const [locating, setLocating] = useState(false);
+  const locationRequest = useRef<AbortController | null>(null);
   const [locationMessage, setLocationMessage] = useState("");
   const [radius, setRadius] = useState(0.5);
   const [draft, setDraft] = useState("");
@@ -47,6 +48,8 @@ export function MapView() {
   const [selected, setSelected] = useState<Bathroom | null>(null);
 
   const origin = area ?? cityCenter;
+  const isNearDevice = location !== null && area?.lat === location.lat && area.lng === location.lng;
+  const areaLabel = isNearDevice ? "Near your location" : area ? "Near the selected area" : "Near Bryant Park, Manhattan";
   const bathrooms = area ? areaBathrooms : cityBathrooms;
   const loadError = area ? areaError : cityError;
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
@@ -106,10 +109,10 @@ export function MapView() {
   const mapCenter = query && results[0] ? results[0].bathroom : origin;
   const mapProps = { bathrooms: markers, center: mapCenter, zoom: query ? 15 : 15 - travelIndex, location, onSelect: setSelected, onViewportChange: setViewport };
 
-  function clearSearch() {
+  const clearSearch = useCallback(() => {
     setDraft("");
     setQuery("");
-  }
+  }, []);
 
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -117,32 +120,59 @@ export function MapView() {
     setSheet("half");
   }
 
-  function searchArea(position: Coordinates) {
+  const searchArea = useCallback((position: Coordinates) => {
     setAreaBathrooms(null);
     setAreaError(false);
     setArea({ lat: position.lat, lng: position.lng });
     setLocationMessage("");
     clearSearch();
     setSheet("half");
-  }
+  }, [clearSearch]);
 
-  function locate() {
+  const locate = useCallback(() => {
+    if (locationRequest.current) return;
     if (!navigator.geolocation) {
-      setLocationMessage("Location is unavailable. Pan the map, then search the area.");
+      setLocationMessage("Location is unavailable in this browser. Try Safari or Chrome, or pan the map and search the area.");
       return;
     }
+    const request = new AbortController();
+    locationRequest.current = request;
     setLocationMessage("");
     setLocating(true);
     navigator.geolocation.getCurrentPosition(({ coords }) => {
+      if (request.signal.aborted) return;
+      locationRequest.current = null;
       setLocating(false);
       const position = { lat: coords.latitude, lng: coords.longitude };
       setLocation(position);
       searchArea(position);
-    }, () => {
+    }, (error) => {
+      if (request.signal.aborted) return;
+      locationRequest.current = null;
       setLocating(false);
-      setLocationMessage("Couldn’t get your location. Check browser permissions or pan the map.");
-    }, { timeout: 10000, maximumAge: 60000 });
-  }
+      setLocationMessage(error.code === 1
+        ? "Location access is blocked. Allow location for this site in your browser settings, then try again."
+        : "Your device couldn’t get a location. Check Location Services and try again, or pan the map.");
+    }, { timeout: 10000, maximumAge: 30000 });
+  }, [searchArea]);
+
+  useEffect(() => {
+    let active = true;
+    if (locateOnOpen) {
+      locate();
+    } else {
+      navigator.permissions?.query({ name: "geolocation" }).then(({ state }) => {
+        if (active && state === "granted") locate();
+      }).catch(() => {
+        // The location button remains available if permission status cannot be queried.
+      });
+    }
+    return () => {
+      active = false;
+      locationRequest.current?.abort();
+      locationRequest.current = null;
+    };
+  }, [locate, locateOnOpen]);
 
   function openGuide() {
     setTab("map");
@@ -191,7 +221,7 @@ export function MapView() {
             {locationMessage && <p className="location-message" role="status">{locationMessage}</p>}
             {locating && <p className="location-message" role="status">Getting your location…</p>}
             {googleFailed && <p className="location-message" role="status">Google Maps is unavailable. Check your key in Profile.</p>}
-            {!query && <span className="map-pill radius-pill">Showing within {radius} mi</span>}
+            {!query && !locating && <span className="map-pill radius-pill">{isNearDevice ? "Your location" : area ? "Selected area" : "NYC preview"} · {radius} mi</span>}
             {distanceMiles(viewport, origin) > Math.min(0.2, radius / 2) &&
               <button type="button" className="map-pill area-pill" onClick={() => searchArea(viewport)}>Search this area</button>}
           </div>
@@ -203,7 +233,7 @@ export function MapView() {
         <section className={`results-sheet results-sheet--${sheet}`} aria-label="Restroom results">
           <button type="button" className="sheet-handle" aria-label={sheet === "collapsed" ? "Show results" : "Collapse results"} onClick={() => setSheet(sheet === "collapsed" ? "half" : "collapsed")}><span /></button>
           <div className="sheet-heading">
-            <div><h1 aria-live="polite">{resultLabel}</h1><p className="results-context">{query ? `Matches for “${query}”` : area ? "Near the selected area" : "Near Bryant Park, Manhattan"}</p></div>
+            <div><h1 aria-live="polite">{resultLabel}</h1><p className="results-context">{query ? `Matches for “${query}”` : areaLabel}</p></div>
             <button className="icon-button" type="button" aria-label={sheet === "full" ? "Show less" : "Expand results"} onClick={() => setSheet(sheet === "full" ? "half" : "full")}>
               {sheet === "full" ? <ChevronDown size={22} /> : <ChevronUp size={22} />}
             </button>

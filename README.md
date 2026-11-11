@@ -21,7 +21,7 @@ In **Profile**, add a browser API key from a Google Cloud project with billing a
 
 ## Restroom data
 
-The initial map uses the [NYC Open Data restroom directory](https://data.cityofnewyork.us/d/i7jb-7jku) snapshot downloaded November 10, 2026. Use **Use my location** or pan and choose **Search this area** to look up nearby places through [REFUGE Restrooms](https://www.refugerestrooms.org/). The app sends the selected area's rounded coordinates to REFUGE for that lookup. Browser geolocation requires permission and HTTPS or localhost. REFUGE is a community directory with variable coverage. Hours and access can change.
+**Find near me** on the launch page opens the map and asks for your location. If your browser already allows this site to use location, **Open map** also starts nearby. The NYC preview uses the [NYC Open Data restroom directory](https://data.cityofnewyork.us/d/i7jb-7jku) snapshot downloaded November 10, 2026. Use **Use my location** or pan and choose **Search this area** to look up nearby places through [REFUGE Restrooms](https://www.refugerestrooms.org/). The app sends the selected area's rounded coordinates to REFUGE for that lookup. Browser geolocation requires permission and HTTPS or localhost. REFUGE is a community directory with variable coverage. Hours and access can change.
 
 ## GitHub Pages
 
